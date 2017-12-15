@@ -11,6 +11,7 @@ object Main {
 
 
 //  def main(args: Array[String]): Unit = {
+//    init()
 //    FillWithData.fillDatabase()
 //  }
 
