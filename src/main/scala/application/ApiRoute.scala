@@ -1,13 +1,11 @@
 package application
 
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
+import io.circe.generic.auto._
 import io.circe.syntax._
-import models.Location
-
-//trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
-//  implicit val hotelFormat = jsonFormat4(Hotel)
-//}
+import models.{Location, User, Visit}
 
 trait ApiRoute extends MyDatabases with FailFastCirceSupport {
 
@@ -24,18 +22,26 @@ trait ApiRoute extends MyDatabases with FailFastCirceSupport {
           }
         } ~
           path("new") {
-//            user: User =>
-//              post {
-//                onSuccess(userRepository.create(user)) {
-//                  result => complete(StatusCodes.OK)
-//                }
-//
-//              }
-            complete("added")
+            post{
+              entity(as[User]) {
+                user => {
+                  onSuccess(userRepository.create(user)) {
+                    result => complete(StatusCodes.OK)
+                  }
+                }
+              }
+            }
+
           } ~
           pathPrefix(LongNumber) { id =>
             post {
-              complete("user updated")
+              entity(as[User]) {
+                user => {
+                  onSuccess(userRepository.update(user)) {
+                    result => complete(StatusCodes.OK)
+                  }
+                }
+              }
             } ~
               get {
                 pathPrefix("visits") {
@@ -59,19 +65,25 @@ trait ApiRoute extends MyDatabases with FailFastCirceSupport {
         } ~
           path("new") {
             post {
-              complete("location added")
+              entity(as[Location]) {
+                location => {
+                  onSuccess(locationRepository.create(location)) {
+                    result => complete(StatusCodes.OK)
+                  }
+                }
+              }
             }
           } ~
           pathPrefix(LongNumber) { id =>
-              post {
-//                entity(as[Location]){
-//                location => {
-//                  onSuccess(locationRepository.update(location)) {
-//                    result => complete(result.asJson)
-//                  }
-//                }
-                complete("location updated")
-              } ~
+            post {
+              entity(as[Location]) {
+                location => {
+                  onSuccess(locationRepository.update(location)) {
+                    result => complete(result.asJson)
+                  }
+                }
+              }
+            } ~
               get {
                 pathPrefix("avg") {
                   onSuccess(visitRepository.getVisitsMarks(id)) {
@@ -94,12 +106,24 @@ trait ApiRoute extends MyDatabases with FailFastCirceSupport {
         } ~
           path("new") {
             post {
-              complete("visit added")
+              entity(as[Visit]) {
+                visit => {
+                  onSuccess(visitRepository.create(visit)) {
+                    result => complete(StatusCodes.OK)
+                  }
+                }
+              }
             }
           } ~
           pathPrefix(LongNumber) { id =>
             post {
-              complete("visit updated")
+              entity(as[Visit]) {
+                visit => {
+                  onSuccess(visitRepository.update(visit)) {
+                    result => complete(result.asJson)
+                  }
+                }
+              }
             } ~
               get {
                 onSuccess(visitRepository.getById(id)) {

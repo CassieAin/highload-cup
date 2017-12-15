@@ -19,3 +19,21 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic",
   "io.circe" %% "circe-parser"
 ).map(_ % "0.8.0")
+
+enablePlugins(DockerPlugin)
+
+dockerfile in docker := {
+  val artifact: File = assembly.value
+  val artifactTargetPath = s"/app/${artifact.name}"
+
+  new Dockerfile {
+    from("java")
+    add(artifact, artifactTargetPath)
+    entryPoint("java", "-jar", artifactTargetPath)
+  }
+}
+
+imageNames in docker := Seq(
+  // Sets the latest tag
+  ImageName("roksolanad/highload-cup:latest")
+)
